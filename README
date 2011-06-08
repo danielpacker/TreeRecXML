@@ -7,7 +7,7 @@ http://informatics.nescent.org/wiki/PhyloSoC:_Interoperable_exchange_of_gene_tre
 
 = Description =
 
-The code here represents the development of a working perl/BioPerl 
+The work here represents the development of a working perl/BioPerl 
 implementation of tree reconciliation representations in XML.
 
 This code will, during summer of 2011, be integrated into the iPlant
@@ -16,6 +16,7 @@ mappings of tree reconciliation. The hope is that a successful
 implementation will pave the road for other developers to use
 this XML schema across the board for interoperable GTR data.
 
+All code is in development, so no guarantee is provided by myself or my sponsors.
 
 = Files =
 
