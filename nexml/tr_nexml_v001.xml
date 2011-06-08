@@ -1,0 +1,98 @@
+<otus>
+  <otu id="h1" label="Arabidopsis"/>
+  <otu id="h2" label="Poplar"/>
+  <otu id="h3" label="Grape"/>  
+  <otu id="g1" label="GeneAt00056"/>
+  <otu id="g2" label="GeneAt01337"/>  
+  <otu id="g3" label="GenePt00711"/>  
+  <otu id="g4" label="GeneVv00142"/>
+</otus>
+ 
+<characters>
+<!-- Sequence data for each guest OTU -->
+</characters
+ 
+<trees>
+ <!-- HOST TREE -->
+  <tree id="host_tree1" label="species tree">
+   <!-- NODES -->
+    <node id="hn1" otu="h1"/>
+    <node id="hn2"/>
+    <node id="hn3" otu="h2"/>
+    <node id="hn4"/>    <node id="hn5" otu="h3"/>
+   <!-- EDGES -->
+    <edge id="he1" source="hn1" target="hn2"/>
+    <edge id="he2" source="hn1" target="hn5"/>
+    <edge id="he3" source="hn2" target="hn3"/>
+    <edge id="he4" source="hn2" target="hn4"/>
+  </tree>
+ <!-- GUEST TREES CAN FOLLOW-->
+  <tree id="guest_tree1" label="Monkeynaut Genes">
+   <!-- GUEST TREE NODES>
+    <node id ="gn1"/>
+    <node id ="gn2"/>  
+    <node id ="gn3"/>  
+    <node id ="gn4" otu="g1"/>
+    <node id ="gn5" otu="g2"/>
+    <node id ="gn6" otu="g3"/>
+    <node id ="gn7" otu="g4"/>
+   <!-- GUEST TREE EDGES>
+    <edge id ="ge1" source="gn1" target="gn2"/>
+    <edge id ="ge2" source="gn1" target="gn7"/>
+    <edge id ="ge3" source="gn2" target="gn3"/>
+    <edge id ="ge4" source="gn2" target="gn6"/>
+    <edge id ="ge5" source="gn3" target="gn4"/>
+    <edge id ="ge6" source="gn3" target="gn5"/>
+  </tree>
+ 
+ 
+  <!-- THE FOLLOWING IS A BIG ADDITION TO NEXML BUT WOULD
+       ALLOW FOR MULTIPLE RECONCILIATIONS WITHIN A SINGLE
+       FILE AS WELL AS ALLOW FOR MULTIPLE RECONCILIATIONS
+       BETWEEN A HOST TREE TOPOLOGY AND A GUEST TREE TOPOLOGY.
+       THIS COULD BE OF A GENERAL CLASS OF CROSS-NETWORK-MAP
+       MAPPINGS OF ONE NETWORK ONTO ANOTHER.
+       THE PARADIGM HERE IS THAT WE ARE MAPPING THE NODES
+       OF THE GUEST TREE ONTO NODES AND EDGES OF THE
+       HOST TREE.
+       FOR EDGE MAPPINGS, MAP BETWEEN TWO NODES ON HOST
+                          TREE TOPOLOGY
+                          host_node_source != host_node_target
+       FOR NODE MAPPINGS, MAP TO SINGLE NODE ON HOST TREE
+                          host_node_source == host_node_target
+  -->
+  <reconciliations>
+   <reconciliation id="rec1" label="Reconciled Monkeynaut Genes" 
+                   host="host_tree1" guest="guest_tree1" 
+                   method="method1"/>
+    <reconciled_node id="reconciled_node1" guest_node="gn1" 
+                     host_node_source="hn1" host_node_target="hn1"
+                     guest_node_type="speciation"/>
+    <reconciled_node id="reconciled_node2" guest_node="gn2" 
+                     host_node_source="hn2" host_node_target="hn2"
+                     guest_node_type="speciation"/>
+    <reconciled_node id="reconciled_node3" guest_node="gn3"
+                     host_node_source="hn2" host_node_target="hn3"
+                     guest_node_type="duplication"/>
+    <reconciled_node id="reconciled_node4" guest_node="gn4"
+                     host_node_source="hn3" host_node_target="hn3"
+                     guest_node_type="leaf_node"/>
+    <reconciled_node id="reconciled_node5" guest_node="gn5"
+                     host_node_source="hn3" host_node_target="hn3"                     
+                     guest_node_type="leaf_node"/>
+    <reconciled_node id="reconciled_node6" guest_node="gn6"
+                     host_node_source="hn4" host_node_target="hn4"
+                     guest_node_type="leaf_node"/>
+    <reconciled_node id="reconciled_node7" guest_node="gn7"
+                     host_node_source="hn5" host_node_target="hn5"
+                     guest_node_type="leaf_node"/>
+   </reconciliation>
+  </reconciliations>
+ 
+ 
+  <methods>
+   <method id="method1"/>
+   <!-- MIAPA COMPLIENT METHODS DESCRIPTIONS HERE -->
+  </methods>
+ 
+</trees>
