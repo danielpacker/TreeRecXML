@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svnroot/nexml/!svn/ver/1440/trunk/nexml/xsd
+END
+abstract.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/nexml/!svn/ver/1381/trunk/nexml/xsd/abstract.xsd
+END
+nexml.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/nexml/!svn/ver/1381/trunk/nexml/xsd/nexml.xsd
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svnroot/nexml/!svn/ver/1409/trunk/nexml/xsd/LICENSE
+END
+build.sh
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svnroot/nexml/!svn/ver/1408/trunk/nexml/xsd/build.sh
+END
+.htaccess
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/nexml/!svn/ver/1440/trunk/nexml/xsd/.htaccess
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/nexml/!svn/ver/413/trunk/nexml/xsd/README.txt
+END
