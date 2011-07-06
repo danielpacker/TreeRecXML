@@ -1,0 +1,123 @@
+<!-- A NEXML reconciled tree file that is complient with 
+     the existing NEXML standard.-->
+<!-- AUTHOR James Estill
+     STARTED: 06/14/2011
+     UPDATED: 06/14/2011 
+     CONTACT: JamesEstill@gmail.com
+-->
+<nex:nexml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+           xmlns:nex="http://www.nexml.org/2009" 
+           xmlns:cdao="http://www.cs.nmsu.edu/~epontell/CURRENT.owl#" 
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+           xmlns:tron="http://purl.org/ontologies/tron"
+           xmlns="http://www.nexml.org/2009" 
+           version="0.9" 
+           xsi:schemaLocation="http://www.nexml.org/2009 ./xsd/nexml.xsd">
+
+
+<otus id="tax1">
+  <otu id="h1" label="Arabidopsis"/>
+  <otu id="h2" label="Poplar"/>
+  <otu id="h3" label="Grape"/>
+  <otu id="g1" label="GeneAt00056"/>
+  <otu id="g2" label="GeneAt01337"/>
+  <otu id="g3" label="GenePt00711"/>
+  <otu id="g4" label="GeneVv00142"/>
+</otus>
+
+<trees otus="tax1" id="Trees">
+  <!-- HOST TREE -->
+  <tree id="host_tree1" xsi:type="nex:FloatTree" label="species tree">
+    
+    <!-- NODES -->
+    <node id="hn1" otu="h1"/>
+    <node id="hn2"/>
+    <node id="hn3" otu="h2"/>
+    <node id="hn4"/>
+    <node id="hn5" otu="h3"/>
+    <!-- EDGES -->
+    <edge id="he1" source="hn1" target="hn2"/>
+    <edge id="he2" source="hn1" target="hn5"/>
+    <edge id="he3" source="hn2" target="hn3"/>
+    <edge id="he4" source="hn2" target="hn4"/>
+  </tree>
+  <!-- GUEST TREES CAN FOLLOW -->
+
+
+
+  <tree id="guest_tree1" xsi:type="nex:FloatTree" label="Monkeynaut Genes">
+    
+    <meta property="tron:reconciliation" xsi:type="nex:ResourceMeta" id="meta1" about="meta1">  
+      <meta property="tron:reconciliation_id" datatype="xsd:string" content="rec1"/>
+      <meta property="tron:host_tree_id" datatype="xsd:string" content="host_tree1"/>
+      <meta property="tron:guest_tree_id" datatype="xsd:string" content="guest_tree1"/>
+      <meta property="tron:reconciliation_method" xsi:type="nex:ResourceMeta" id="meta2" about="meta2">
+        <meta property="tron:reconciliation_software" datatype="xsd:string" content="TREEBEST"/>
+      </meta>
+    </meta>
+    
+    <!-- GUEST TREE1 NODES -->
+    <node id ="gn1">
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" content="reconciled_node1"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn1"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn1"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="speciation"/>
+    </node>
+
+    <node id ="gn2">
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="reconciled_node2"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn2"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn2"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="speciation"/>
+    </node>
+
+    <node id ="gn3"> 
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="reconciled_node3"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn2"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn3"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="duplication"/>
+    </node>
+
+    <node id ="gn4" otu="g1">
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="reconciled_node4"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn3"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn3"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="leaf_node"/>
+    </node>
+
+    <node id ="gn5" otu="g2">
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="reconciled_node5"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn3"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn3"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="leaf_node"/>
+    </node>
+
+    <node id ="gn6" otu="g3">
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="reconciled_node6"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn4"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn4"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="leaf_node"/>
+    </node>
+
+    <node id ="gn7" otu="g4">
+      <meta property="tron:reconciliation_node_id" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="reconciled_node7"/>
+      <meta property="tron:host_node_parent" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn5"/>
+      <meta property="tron:host_node_child" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="hn5"/>
+      <meta property="tron:guest_node_type" datatype="xsd:string" xsi:type="nex:LiteralMeta" content="leaf_node"/>
+    </node>
+
+    <!-- GUEST TREE EDGES -->
+    <edge id="ge1" source="gn1" target="gn2"/>
+    <edge id="ge2" source="gn1" target="gn7"/>
+    <edge id="ge3" source="gn2" target="gn3"/>
+    <edge id="ge4" source="gn2" target="gn6"/>
+    <edge id="ge5" source="gn3" target="gn4"/>
+    <edge id="ge6" source="gn3" target="gn5"/>
+
+  </tree>
+
+</trees>
+  
+    
+</nex:nexml>
+
