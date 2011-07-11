@@ -57,7 +57,7 @@ sub new {
 sub read_nexml {
     my $self = shift;
     my $filename = shift or die "No filename provided.";
-    die "'$filename' not found." unless (-e $filename);
+    die "'$filename' not found." unless ( -e $filename );
 
     #Bio::Phylo::NeXML::DOM->new();
 
@@ -71,6 +71,7 @@ sub read_nexml {
             my $taxa = $block;
 
             my $num_taxa = $taxa->get_ntax;
+
             #print STDERR "NUM TAXA: " . $num_taxa . "\n";
 
             # do something with the taxa
@@ -80,11 +81,11 @@ sub read_nexml {
 
             #print STDERR "-- Displaying metadata --\n";
             my $recs = $self->extract_reconciliations($forest);
+
             #print STDERR "-- end of metadata --\n";
 
-print "RECS: " . Dumper $recs;
-return $recs;
-
+            print "RECS: " . Dumper $recs;
+            return $recs;
 
             my $tree_num = 0;
 
@@ -167,59 +168,64 @@ sub extract_reconciliations {
     my $obj  = shift or die "No object provided!";
     my $lvl  = shift || 0;                           # indentation level
 
-    my @recs = (); # return the reconciliation objects
-    
+    my @recs = ();    # return the reconciliation objects
+
     if ( my $metadata = $obj->get_meta('tron:reconciliations') ) {
 
         foreach my $meta ( @{$metadata} ) {
             my $pred = $meta->get_predicate || '';
             my $obj  = $meta->get_object    || '';
-            
-            if ($pred eq 'tron:reconciliations') {
-                
+
+            if ( $pred eq 'tron:reconciliations' ) {
+
                 my $recs = $meta->get_meta();
-                
+
                 for my $rec (@$recs) {
-                   my $pred = $rec->get_predicate || '';
-                   my $rec_metas = $rec->get_meta();
-                   
-                   # create new reconciliation object
-                   my $rec_obj = Reconciliation->new();
-                       
-                   # extract reconciliation properties
-                   for my $rec_meta (@$rec_metas) {
-                       my $rm_pred = $rec_meta->get_predicate || '';
-                       my $rm_obj = $rec_meta->get_object || '';
-                       #print "[$rm_pred -> $rm_obj]\n";
-                       
-                       if      ($rm_pred eq 'tron:reconciliation_id') {
-                           $rec_obj->id($rm_obj);
-                       } elsif ($rm_pred eq 'tron:host_tree_id') {
-                           $rec_obj->host_tree($rm_obj);
-                       } elsif ($rm_pred eq 'tron:guest_tree_id') {
+                    my $pred = $rec->get_predicate || '';
+                    my $rec_metas = $rec->get_meta();
+
+                    # create new reconciliation object
+                    my $rec_obj = Reconciliation->new();
+
+                    # extract reconciliation properties
+                    for my $rec_meta (@$rec_metas) {
+                        my $rm_pred = $rec_meta->get_predicate || '';
+                        my $rm_obj  = $rec_meta->get_object    || '';
+
+                        #print "[$rm_pred -> $rm_obj]\n";
+
+                        if ( $rm_pred eq 'tron:reconciliation_id' ) {
+                            $rec_obj->id($rm_obj);
+                        }
+                        elsif ( $rm_pred eq 'tron:host_tree_id' ) {
+                            $rec_obj->host_tree($rm_obj);
+                        }
+                        elsif ( $rm_pred eq 'tron:guest_tree_id' ) {
                             $rec_obj->guest_tree($rm_obj);
-                       } elsif ($rm_pred eq 'tron:reconciliation_method') {
-                           my $rec_method_metas = $rec_meta->get_meta();
-                           for my $rec_method_meta (@$rec_method_metas) {
-                               if ($rec_method_meta->get_predicate eq 'tron:reconciliation_software') {
-                                   $rec_obj->method( 'software' => $rec_method_meta->get_object );
-                               }
-                           }
-                       }
-                       
-                       
-                   }
-                   
-                   # save the reconciliation object
-                   push @recs, $rec_obj;
+                        }
+                        elsif ( $rm_pred eq 'tron:reconciliation_method' ) {
+                            my $rec_method_metas = $rec_meta->get_meta();
+                            for my $rec_method_meta (@$rec_method_metas) {
+                                if ( $rec_method_meta->get_predicate eq
+                                    'tron:reconciliation_software' )
+                                {
+                                    $rec_obj->method( 'software' =>
+                                          $rec_method_meta->get_object );
+                                }
+                            }
+                        }
+
+                    }
+
+                    # save the reconciliation object
+                    push @recs, $rec_obj;
                 }
             }
         }
     }
-    
+
     return \@recs;
 }
-
 
 1;
 
@@ -233,7 +239,7 @@ sub new {
         'host_tree'  => undef,
         'guest_tree' => undef,
         'method'     => { 'software' => {} },
-        
+
     };
     bless $self, $class;
     return $self;
@@ -245,9 +251,9 @@ sub method {
     my @valid_properties = qw/software/;
 
     if ( my %properties = @_ ) {
-        for my $p (keys %properties) {
+        for my $p ( keys %properties ) {
             if ( grep $p, @valid_properties ) {
-                    $self->{$p} = $properties{p};
+                $self->{'method'}->{$p} = $properties{$p};
             }
         }
     }
@@ -258,8 +264,8 @@ sub method {
 
 sub id {
     my $self = shift;
-    my $id = shift;
-    if (defined($id)) {
+    my $id   = shift;
+    if ( defined($id) ) {
         $self->{'id'} = $id;
     }
     else {
@@ -269,7 +275,7 @@ sub id {
 
 sub host_tree {
     my $self = shift;
-    if (my $tree_id = shift) {
+    if ( my $tree_id = shift ) {
         $self->{'host_tree'} = $tree_id;
     }
     else {
@@ -277,10 +283,9 @@ sub host_tree {
     }
 }
 
-
 sub guest_tree {
     my $self = shift;
-    if (my $tree_id = shift) {
+    if ( my $tree_id = shift ) {
         $self->{'guest_tree'} = $tree_id;
     }
     else {
