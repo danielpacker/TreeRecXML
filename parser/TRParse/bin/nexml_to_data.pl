@@ -13,10 +13,24 @@ Bio::Phylo::NeXML::DOM->new();
 my $blocks = parse(
 	'-file'       => $infile,
 	'-format'     => 'nexml',
-	'-as_project' => 1,
+	#'-as_project' => 1,
 );
 
-print "BLOCKS:\n"; print Dumper $blocks; exit;
+#print "PROJECT:\n"; print Dumper $project;
+#
+#my $document = $project->get_document;
+#
+## print "DOCUMENT:\n"; print Dumper $document;
+#
+## get meta tags in document
+#
+#my @meta = @{ $project->get_meta };
+#
+#print "METAS: " . Dumper \@meta;
+#
+#exit;
+
+print "BLOCKS: " . Dumper $blocks;
 
 for my $block ( @{$blocks} ) {
 	if ( $block->isa('Bio::Phylo::Taxa') ) {
@@ -30,8 +44,12 @@ for my $block ( @{$blocks} ) {
 	elsif ( $block->isa('Bio::Phylo::Forest') ) {
 		my $forest = $block;
 
+		print STDERR "-- Displaying metadata --\n";
+			display_nested_meta($forest);
+			print STDERR "-- end of metadata --\n";
+			
 		my $tree_num = 0;
-
+		
 		foreach my $tree ( @{ $forest->get_entities } ) {
 			$tree_num++;
 
@@ -91,10 +109,10 @@ sub display_nested_meta {
 	if ( my $metadata = $obj->get_meta() ) {
 
 		foreach my $meta ( @{$metadata} ) {
+            my $pred = $meta->get_predicate || '';
+            my $obj  = $meta->get_object || '';
 			print STDERR "    " x $lvl;
-			print STDERR "    "
-			  . $meta->get_predicate . " --> "
-			  . $meta->get_object . "\n";
+			print STDERR "    " . $pred . " --> " . $obj . "\n";
 			if ( scalar( @{ $meta->get_meta() } ) ) {
 				display_nested_meta ( $meta, ++$lvl );
 			}

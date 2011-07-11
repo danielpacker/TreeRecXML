@@ -13,16 +13,6 @@
     version="0.9" 
     xsi:schemaLocation="http://www.nexml.org/2009/nexml.xsd">
     
-    <meta property="tron:reconciliations" xsi:type="nexResourceMeta" id="meta1" about="meta1">
-        <meta property="tron:reconciliation" xsi:type="nex:ResourceMeta" id="meta2" about="meta2">  
-            <meta property="tron:reconciliation_id" datatype="xsd:string" content="rec1"/>
-            <meta property="tron:host_tree_id" datatype="xsd:string" content="host_tree1"/>
-            <meta property="tron:guest_tree_id" datatype="xsd:string" content="guest_tree1"/>
-            <meta property="tron:reconciliation_method" xsi:type="nex:ResourceMeta" id="meta3" about="meta3">
-                <meta property="tron:reconciliation_software" datatype="xsd:string" content="TREEBEST"/>
-            </meta>
-        </meta>
-    </meta>
     
     <otus id="tax1">
         <otu id="h1" label="Arabidopsis"/>
@@ -35,6 +25,18 @@
     </otus>
     
     <trees otus="tax1" id="Trees">
+        
+        <meta property="tron:reconciliations" xsi:type="nexResourceMeta" id="meta1" about="meta1">
+            <meta property="tron:reconciliation" xsi:type="nex:ResourceMeta" id="meta2" about="meta2">  
+                <meta property="tron:reconciliation_id" datatype="xsd:string" content="rec1"/>
+                <meta property="tron:host_tree_id" datatype="xsd:string" content="host_tree1"/>
+                <meta property="tron:guest_tree_id" datatype="xsd:string" content="guest_tree1"/>
+                <meta property="tron:reconciliation_method" xsi:type="nex:ResourceMeta" id="meta3" about="meta3">
+                    <meta property="tron:reconciliation_software" datatype="xsd:string" content="TREEBEST"/>
+                </meta>
+            </meta>
+        </meta>
+        
         <!-- HOST TREE -->
         <tree id="host_tree1" xsi:type="nex:FloatTree" label="species tree">
             
