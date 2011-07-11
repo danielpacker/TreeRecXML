@@ -57,6 +57,7 @@ sub new {
 sub read_nexml {
     my $self = shift;
     my $filename = shift or die "No filename provided.";
+    die "'$filename' not found." unless (-e $filename);
 
     #Bio::Phylo::NeXML::DOM->new();
 
@@ -166,9 +167,11 @@ sub new {
 
     my $class = shift;
     my $self  = {
-        'method'     => '',
+        'id'         => undef,
         'host_tree'  => undef,
         'guest_tree' => undef,
+        'method'     => { 'properties' => {} },
+        
     };
     bless $self, $class;
     return $self;
@@ -177,23 +180,49 @@ sub new {
 # if valid method, write method
 sub method {
     my $self             = shift;
-    my @valid_methods    = qw/TREEBEST/;
-    my @valid_properties = qw/software/;
+    my @valid_properties = qw/reconciliation_software/;
 
-    if ( my %properties = shift ) {
-
-        # method is a hash of properties
-
-        for my $p (@valid_properties) {
-            if ( exists $properties{$p} ) {
-                if ( grep /$p/i, @valid_properties ) {
-                    $self->{'method'} = $properties{$p};
-                }
+    if ( my %properties = @_ ) {
+        for my $p (keys %properties) {
+            if ( grep $p, @valid_properties ) {
+                    $self->{'method'}->{'properties'}->{$p} = $properties{p};
             }
         }
     }
     else {
         return $self->{'method'};
+    }
+}
+
+sub id {
+    my $self = shift;
+    my $id = shift;
+    if (defined($id)) {
+        $self->{'id'} = $id;
+    }
+    else {
+        return $self->{'id'};
+    }
+}
+
+sub host_tree {
+    my $self = shift;
+    if (my $tree_id = shift) {
+        $self->{'host_tree'} = $tree_id;
+    }
+    else {
+        return $self->{'host_tree'};
+    }
+}
+
+
+sub guest_tree {
+    my $self = shift;
+    if (my $tree_id = shift) {
+        $self->{'guest_tree'} = $tree_id;
+    }
+    else {
+        return $self->{'guest_tree'};
     }
 }
 
