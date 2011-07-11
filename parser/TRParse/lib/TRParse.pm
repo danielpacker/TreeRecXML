@@ -71,16 +71,20 @@ sub read_nexml {
             my $taxa = $block;
 
             my $num_taxa = $taxa->get_ntax;
-            print STDERR "NUM TAXA: " . $num_taxa . "\n";
+            #print STDERR "NUM TAXA: " . $num_taxa . "\n";
 
             # do something with the taxa
         }
         elsif ( $block->isa('Bio::Phylo::Forest') ) {
             my $forest = $block;
 
-            print STDERR "-- Displaying metadata --\n";
-            $self->display_nested_meta($forest);
-            print STDERR "-- end of metadata --\n";
+            #print STDERR "-- Displaying metadata --\n";
+            my $recs = $self->extract_reconciliations($forest);
+            #print STDERR "-- end of metadata --\n";
+
+print "RECS: " . Dumper $recs;
+return $recs;
+
 
             my $tree_num = 0;
 
@@ -157,6 +161,64 @@ sub display_nested_meta {
     }
 }
 
+# Returns arrayref of Reconciliations objects populated via bio::phylo forest
+sub extract_reconciliations {
+    my $self = shift;
+    my $obj  = shift or die "No object provided!";
+    my $lvl  = shift || 0;                           # indentation level
+
+    my @recs = (); # return the reconciliation objects
+    
+    if ( my $metadata = $obj->get_meta('tron:reconciliations') ) {
+
+        foreach my $meta ( @{$metadata} ) {
+            my $pred = $meta->get_predicate || '';
+            my $obj  = $meta->get_object    || '';
+            
+            if ($pred eq 'tron:reconciliations') {
+                
+                my $recs = $meta->get_meta();
+                
+                for my $rec (@$recs) {
+                   my $pred = $rec->get_predicate || '';
+                   my $rec_metas = $rec->get_meta();
+                   
+                   # create new reconciliation object
+                   my $rec_obj = Reconciliation->new();
+                       
+                   # extract reconciliation properties
+                   for my $rec_meta (@$rec_metas) {
+                       my $rm_pred = $rec_meta->get_predicate || '';
+                       my $rm_obj = $rec_meta->get_object || '';
+                       #print "[$rm_pred -> $rm_obj]\n";
+                       
+                       if      ($rm_pred eq 'tron:reconciliation_id') {
+                           $rec_obj->id($rm_obj);
+                       } elsif ($rm_pred eq 'tron:host_tree_id') {
+                           $rec_obj->host_tree($rm_obj);
+                       } elsif ($rm_pred eq 'tron:guest_tree_id') {
+                            $rec_obj->guest_tree($rm_obj);
+                       } elsif ($rm_pred eq 'tron:reconciliation_method') {
+                           my $rec_method_metas = $rec_meta->get_meta();
+                           for my $rec_method_meta (@$rec_method_metas) {
+                               if ($rec_method_meta->get_predicate eq 'tron:reconciliation_software') {
+                                   $rec_obj->method( 'software' => $rec_method_meta->get_object );
+                               }
+                           }
+                       }
+                       
+                       
+                   }
+                   
+                   # save the reconciliation object
+                   push @recs, $rec_obj;
+                }
+            }
+        }
+    }
+    
+    return \@recs;
+}
 
 
 1;
@@ -170,7 +232,7 @@ sub new {
         'id'         => undef,
         'host_tree'  => undef,
         'guest_tree' => undef,
-        'method'     => { 'properties' => {} },
+        'method'     => { 'software' => {} },
         
     };
     bless $self, $class;
@@ -180,12 +242,12 @@ sub new {
 # if valid method, write method
 sub method {
     my $self             = shift;
-    my @valid_properties = qw/reconciliation_software/;
+    my @valid_properties = qw/software/;
 
     if ( my %properties = @_ ) {
         for my $p (keys %properties) {
             if ( grep $p, @valid_properties ) {
-                    $self->{'method'}->{'properties'}->{$p} = $properties{p};
+                    $self->{$p} = $properties{p};
             }
         }
     }
