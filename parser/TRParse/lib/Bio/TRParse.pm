@@ -54,7 +54,19 @@ sub new {
     return $self;
 }
 
-
+sub load {
+    my $self = shift;
+    my %args = @_;
+    
+    if (exists $args{'source'}) {
+        if (exists $args{'format'} and ($args{'format'} eq 'nexml')) {
+            $self->read_nexml($args{'source'});
+        }
+    }
+    else {
+        die "load must be provided a source argument";
+    }
+}
 
 sub read_nexml {
     my $self = shift;
