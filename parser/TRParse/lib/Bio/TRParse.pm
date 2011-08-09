@@ -1,4 +1,4 @@
-package TRParse;
+package Bio::TRParse;
 
 use 5.006;
 use strict;
@@ -54,6 +54,8 @@ sub new {
     return $self;
 }
 
+
+
 sub read_nexml {
     my $self = shift;
     my $filename = shift or die "No filename provided.";
@@ -84,80 +86,8 @@ sub read_nexml {
 
             #print STDERR "-- end of metadata --\n";
 
-            print "RECS: " . Dumper $recs;
-            return $recs;
-
-            my $tree_num = 0;
-
-            foreach my $tree ( @{ $forest->get_entities } ) {
-                $tree_num++;
-
-                print STDERR "\n\nEvaluating Tree $tree_num \n";
-
-                print STDERR "-- Displaying metadata --\n";
-                $self->display_nested_meta($tree);
-                print STDERR "-- end of metadata --\n";
-
-                my $num_nodes = $tree->calc_number_of_nodes;
-                print STDERR "NUM NODES: " . $num_nodes . "\n";
-
-                my $tree_name = $tree->get_name;
-                if ($tree_name) {
-                    print STDERR "TREE NAME: " . $tree_name . "\n";
-                }
-
-                my $tree_id = $tree->get('get_id');
-                print STDERR "Tree ID: " . $tree_id . "\n";
-
-                foreach my $node ( @{ $tree->get_entities } ) {
-
-                    # NODE ID AS USED BY Bio::Phylo
-                    my $node_id = $node->get_id;
-                    print STDERR "\tID: " . $node_id . "\n";
-
-                    # We can get the node parent with get_parent
-                    # this returns a Bio::Phylo::Forest::Node object
-                    my $node_parent = $node->get_parent;
-
-                    # We can also get information about the branch
-                    # length if it is available
-                    my $branch_length = $node->get_branch_length;
-                    if ($branch_length) {
-                        print STDERR "\tBranch Length: "
-                          . $branch_length . "\n";
-                    }
-
-                    foreach my $node_properties ( @{ $node->get_entities } ) {
-                        print STDERR "\t" . $node_properties . "\n";
-                    }    # End of for each node_property
-
-                    # Get meta data for the nodes
-                    $self->display_nested_meta($node);
-
-                }    # End of getting nodes with tree->get_entities
-
-            }
-
-        }    # End of if block is a forest
-
-    }
-}
-
-sub display_nested_meta {
-    my $self = shift;
-    my $obj  = shift or die "No object provided!";
-    my $lvl  = shift || 0;                           # indentation level
-
-    if ( my $metadata = $obj->get_meta() ) {
-
-        foreach my $meta ( @{$metadata} ) {
-            my $pred = $meta->get_predicate || '';
-            my $obj  = $meta->get_object    || '';
-            print STDERR "    " x $lvl;
-            print STDERR "    " . $pred . " --> " . $obj . "\n";
-            if ( scalar( @{ $meta->get_meta() } ) ) {
-                $self->display_nested_meta( $meta, ++$lvl );
-            }
+            #print "RECS: " . Dumper $recs;
+            $self->{'reconciliations'} = $recs;
         }
     }
 }
@@ -166,8 +96,7 @@ sub display_nested_meta {
 sub extract_reconciliations {
     my $self = shift;
     my $obj  = shift or die "No object provided!";
-    my $lvl  = shift || 0;                           # indentation level
-
+    
     my @recs = ();    # return the reconciliation objects
 
     if ( my $metadata = $obj->get_meta('tron:reconciliations') ) {
@@ -191,9 +120,8 @@ sub extract_reconciliations {
                     for my $rec_meta (@$rec_metas) {
                         my $rm_pred = $rec_meta->get_predicate || '';
                         my $rm_obj  = $rec_meta->get_object    || '';
-
-                        #print "[$rm_pred -> $rm_obj]\n";
-
+                        
+                        # set appropriate reconcilation property
                         if ( $rm_pred eq 'tron:reconciliation_id' ) {
                             $rec_obj->id($rm_obj);
                         }
@@ -227,6 +155,32 @@ sub extract_reconciliations {
     return \@recs;
 }
 
+# Display nested meta tags (if there are any) on a tree node
+sub display_nested_meta {
+    my $self = shift;
+    my $obj  = shift or die "No object provided!";
+    my $lvl  = shift || 0;  # indentation level
+
+    if ( my $metadata = $obj->get_meta() ) {
+
+        foreach my $meta ( @{$metadata} ) {
+            my $pred = $meta->get_predicate || '';
+            my $obj  = $meta->get_object    || '';
+            print STDERR "    " x $lvl;
+            print STDERR "    " . $pred . " --> " . $obj . "\n";
+            if ( scalar( @{ $meta->get_meta() } ) ) {
+                $self->display_nested_meta( $meta, ++$lvl );
+            }
+        }
+    }
+}
+
+sub dump {
+    my $self = shift;
+    use Data::Dumper;
+    return Dumper $self;
+}
+
 1;
 
 package Reconciliation;
@@ -239,7 +193,6 @@ sub new {
         'host_tree'  => undef,
         'guest_tree' => undef,
         'method'     => { 'software' => {} },
-
     };
     bless $self, $class;
     return $self;
@@ -294,6 +247,41 @@ sub guest_tree {
 }
 
 1;
+
+package Reconciliation::Tree;
+
+sub new {
+
+    my $class = shift;
+    my $self  = {
+        'id'     => undef,
+        'nodes'  => [],
+    };
+    bless $self, $class;
+    return $self;    
+}
+
+1;
+
+
+package Reconciliation::Tree::Node;
+
+sub new {
+
+    my $class = shift;
+    my $self  = {
+        'id'  => undef,
+        'children'   => [],
+        'guest_tree' => undef,
+        'method'     => { 'software' => {} },
+
+    };
+    bless $self, $class;
+    return $self;    
+}
+
+1;
+
 
 =head1 AUTHOR
 
