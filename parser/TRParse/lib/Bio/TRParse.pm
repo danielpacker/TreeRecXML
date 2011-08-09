@@ -59,8 +59,16 @@ sub load {
     my %args = @_;
     
     if (exists $args{'source'}) {
-        if (exists $args{'format'} and ($args{'format'} eq 'nexml')) {
-            $self->read_nexml($args{'source'});
+        if (exists $args{'format'}) {
+            if ($args{'format'} eq 'nexml') {
+                $self->load_from_nexml($args{'source'});
+             }
+             elsif ($args{'format'} eq 'nhx') {
+                 $self->load_from_nhx($args{'source'});
+             }
+             elsif ($args{'format'} eq 'prime') {
+                 $self->load_from_prime($args{'source'});
+             }
         }
     }
     else {
@@ -68,7 +76,19 @@ sub load {
     }
 }
 
-sub read_nexml {
+sub load_from_nhx {
+    my $self = shift;
+}
+
+sub load_from_prime {
+    my $self = shift;
+}
+
+sub load_from_iplant {
+    my $self = shift;
+}
+
+sub load_from_nexml {
     my $self = shift;
     my $filename = shift or die "No filename provided.";
     die "'$filename' not found." unless ( -e $filename );
@@ -94,7 +114,7 @@ sub read_nexml {
             my $forest = $block;
 
             #print STDERR "-- Displaying metadata --\n";
-            my $recs = $self->extract_reconciliations($forest);
+            my $recs = $self->extract_reconciliations_from_nexml($forest);
 
             #print STDERR "-- end of metadata --\n";
 
@@ -105,7 +125,7 @@ sub read_nexml {
 }
 
 # Returns arrayref of Reconciliations objects populated via bio::phylo forest
-sub extract_reconciliations {
+sub extract_reconciliations_from_nexml {
     my $self = shift;
     my $obj  = shift or die "No object provided!";
     
@@ -168,7 +188,7 @@ sub extract_reconciliations {
 }
 
 # Display nested meta tags (if there are any) on a tree node
-sub display_nested_meta {
+sub display_nested_meta_in_nexml {
     my $self = shift;
     my $obj  = shift or die "No object provided!";
     my $lvl  = shift || 0;  # indentation level
@@ -181,12 +201,13 @@ sub display_nested_meta {
             print STDERR "    " x $lvl;
             print STDERR "    " . $pred . " --> " . $obj . "\n";
             if ( scalar( @{ $meta->get_meta() } ) ) {
-                $self->display_nested_meta( $meta, ++$lvl );
+                $self->display_nested_meta_in_nexml( $meta, ++$lvl );
             }
         }
     }
 }
 
+# Show everything in the object
 sub dump {
     my $self = shift;
     use Data::Dumper;
@@ -195,6 +216,7 @@ sub dump {
 
 1;
 
+# The object
 package Reconciliation;
 
 sub new {
