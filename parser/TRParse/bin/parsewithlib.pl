@@ -18,6 +18,12 @@ $TRobject->load(
 
 print $TRobject->dump();
 
+$TRobject->load(
+    'format' => 'iplant',
+    'source' => ['bowers_rosids', 'pg00892'],
+    );
+
+
 print "done";
 
 exit;

@@ -8,6 +8,12 @@ use Data::Dumper;
 use Bio::Phylo::NeXML::DOM;
 use Bio::Phylo::IO qw(parse unparse);
 
+use DBI;
+
+use constant DB_DSN => 'DBI:mysql:database=trdb;host=localhost';
+use constant DB_USER => 'root';
+use constant DB_PASS => 'root';
+    
 =head1 NAME
 
 TRParse - The great new TRParse!
@@ -49,6 +55,7 @@ sub new {
         'reconciliations' => [],
         'host_trees'      => [],
         'guest_trees'     => [],
+        'dbi_connection'  => undef,
     };
     bless $self, $class;
     return $self;
@@ -57,6 +64,11 @@ sub new {
 sub load {
     my $self = shift;
     my %args = @_;
+    
+    # clear existing loaded data
+    $self->{'reconciliations'} = [];
+    $self->{'host_trees'} = [];
+    $self->{'guest_trees'} = [];
     
     if (exists $args{'source'}) {
         if (exists $args{'format'}) {
@@ -68,6 +80,9 @@ sub load {
              }
              elsif ($args{'format'} eq 'prime') {
                  $self->load_from_prime($args{'source'});
+             }
+             elsif ($args{'format'} eq 'iplant') {
+                 $self->load_from_iplant(@{ $args{'source'} });
              }
         }
     }
@@ -87,6 +102,17 @@ sub load_from_prime {
 sub load_from_iplant {
     my $self = shift;
     
+    my $species_tree_label = shift or die "missing arg";
+    my $gene_tree_stable_id = shift or die "missing arg";
+    
+    # establish database handle if none exists:
+    unless (defined $self->{'dbi'}) {
+        $self->{'dbi'} = DBI->connect(DB_DSN, DB_USER, DB_PASS)
+            or die "Database connection failed: $!"
+    };
+    
+    $self->{'dbh'}->{'RaiseError'} = 1;
+    
     # first we'll find the reconciliation between gene_tree and species_tree
     my $check_family_tree_exists_sql =
     'SELECT protein_tree.protein_tree_id, protein_tree.root_node_id FROM reconciliation
@@ -94,15 +120,24 @@ sub load_from_iplant {
             LEFT JOIN family USING(family_id)
                 WHERE family.stable_id = ?';
                 
+    my @protein_tree_info = $self->{'dbi'}->selectrow_array(
+        $check_family_tree_exists_sql, {}, $gene_tree_stable_id);
+    
     # determine that the species tree is in place
     my $check_species_tree_exists_sql = 
     'SELECT species_tree_id, root_node_id FROM species_tree
         WHERE species_tree_name = ?';
-        
+
+    my @species_tree_info = $self->{'dbi'}->selectrow_array(
+        $check_species_tree_exists_sql, {}, $species_tree_label);
+                
     # get all nodes for species tree
     my $get_species_tree_nodes_sql =
-    'SELECT label, parent_id FROM species_tree_node
+    'SELECT species_tree_node_id, label, parent_id FROM species_tree_node
         WHERE species_tree_id = ?';
+    
+    my $species_tree_nodes = $self->{'dbi'}->selectall_arrayref(
+        $get_species_tree_nodes_sql, {}, $species_tree_info[0]);
     
     # get all nodes for gene tree, while resolving gene names
     my $get_protein_tree_nodes_sql =
@@ -110,7 +145,19 @@ sub load_from_iplant {
         LEFT JOIN protein_tree_member USING(node_id)
             LEFT JOIN member USING(member_id)
                 WHERE protein_tree_id = ?';
-                
+            
+    my $protein_tree_nodes = $self->{'dbi'}->selectall_arrayref(
+        $get_protein_tree_nodes_sql, {}, $protein_tree_info[0]);    
+        
+        
+    use Data::Dumper;
+    print "@protein_tree_info"
+    . "---\n" .
+    "@species_tree_info"
+    . "---\n" .
+    Dumper $species_tree_nodes
+    . "---\n" .
+    Dumper $protein_tree_nodes;
 }
 
 sub load_from_nexml {
