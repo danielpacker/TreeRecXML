@@ -86,6 +86,30 @@ sub load_from_prime {
 
 sub load_from_iplant {
     my $self = shift;
+    
+    # first we'll find the reconciliation between gene_tree and species_tree
+    my $check_family_tree_exists_sql =
+    'SELECT protein_tree.protein_tree_id, protein_tree.root_node_id FROM reconciliation
+        LEFT JOIN protein_tree USING(protein_tree_id)
+            LEFT JOIN family USING(family_id)
+                WHERE family.stable_id = ?';
+                
+    my $check_species_tree_exists_sql = 
+    'SELECT species_tree_id, root_node_id FROM species_tree
+        WHERE species_tree_name = ?';
+        
+    # get all nodes for species tree
+    my $get_species_tree_nodes_sql =
+    'SELECT label, parent_id FROM species_tree_node
+        WHERE species_tree_id = ?';
+    
+    # get all nodes for gene tree
+    my $get_protein_tree_nodes_sql =
+    'SELECT n.node_id, n.parent_id, n.root_id, member.stable_id FROM protein_tree_node AS `n`
+        LEFT JOIN protein_tree_member USING(node_id)
+            LEFT JOIN member USING(member_id)
+                WHERE protein_tree_id = ?';
+                
 }
 
 sub load_from_nexml {
