@@ -148,16 +148,19 @@ sub load_from_iplant {
             
     my $protein_tree_nodes = $self->{'dbi'}->selectall_arrayref(
         $get_protein_tree_nodes_sql, {}, $protein_tree_info[0]);    
-        
-        
-    use Data::Dumper;
-    print "@protein_tree_info"
-    . "---\n" .
-    "@species_tree_info"
-    . "---\n" .
-    Dumper $species_tree_nodes
-    . "---\n" .
-    Dumper $protein_tree_nodes;
+                
+#    for my $row (@$species_tree_nodes) {
+#            print "@{$row} \n" if @$row;
+#    }    
+#    use Data::Dumper;
+#    print "@protein_tree_info"
+#    . "---\n" .
+#    "@species_tree_info"
+#    . "---\n" .
+#    Dumper $species_tree_nodes
+#    . "---\n" .
+#    Dumper $protein_tree_nodes;
+
 }
 
 sub load_from_nexml {
