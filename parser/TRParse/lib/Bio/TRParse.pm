@@ -94,6 +94,7 @@ sub load_from_iplant {
             LEFT JOIN family USING(family_id)
                 WHERE family.stable_id = ?';
                 
+    # determine that the species tree is in place
     my $check_species_tree_exists_sql = 
     'SELECT species_tree_id, root_node_id FROM species_tree
         WHERE species_tree_name = ?';
@@ -103,7 +104,7 @@ sub load_from_iplant {
     'SELECT label, parent_id FROM species_tree_node
         WHERE species_tree_id = ?';
     
-    # get all nodes for gene tree
+    # get all nodes for gene tree, while resolving gene names
     my $get_protein_tree_nodes_sql =
     'SELECT n.node_id, n.parent_id, n.root_id, member.stable_id FROM protein_tree_node AS `n`
         LEFT JOIN protein_tree_member USING(node_id)
@@ -116,8 +117,6 @@ sub load_from_nexml {
     my $self = shift;
     my $filename = shift or die "No filename provided.";
     die "'$filename' not found." unless ( -e $filename );
-
-    #Bio::Phylo::NeXML::DOM->new();
 
     my $blocks = parse(
         '-file'   => $filename,
@@ -170,7 +169,7 @@ sub extract_reconciliations_from_nexml {
                     my $rec_metas = $rec->get_meta();
 
                     # create new reconciliation object
-                    my $rec_obj = Reconciliation->new();
+                    my $rec_obj = Bio::TRParse::Reconciliation->new();
 
                     # extract reconciliation properties
                     for my $rec_meta (@$rec_metas) {
@@ -241,7 +240,7 @@ sub dump {
 1;
 
 # The object
-package Reconciliation;
+package Bio::TRParse::Reconciliation;
 
 sub new {
 
@@ -306,14 +305,16 @@ sub guest_tree {
 
 1;
 
-package Reconciliation::Tree;
+package Bio::TRParse::Reconciliation::Tree;
 
 sub new {
 
     my $class = shift;
     my $self  = {
-        'id'     => undef,
-        'nodes'  => [],
+        'node_id'      => undef,
+        'label'        => undef,
+        'root_node_id' => undef,
+        'nodes'        => [],
     };
     bless $self, $class;
     return $self;    
@@ -322,17 +323,17 @@ sub new {
 1;
 
 
-package Reconciliation::Tree::Node;
+package Bio::TRParse::Reconciliation::Tree::Node;
 
 sub new {
 
     my $class = shift;
     my $self  = {
-        'id'  => undef,
-        'children'   => [],
-        'guest_tree' => undef,
-        'method'     => { 'software' => {} },
-
+        'node_id'        => undef,
+        'label'          => undef,
+        'root_node_id'   => undef,
+        'parent_node_id' => [],
+        'metadata'       => {},
     };
     bless $self, $class;
     return $self;    
