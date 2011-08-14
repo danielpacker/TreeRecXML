@@ -16,7 +16,7 @@ use constant DB_PASS => 'root';
     
 =head1 NAME
 
-TRParse - The great new TRParse!
+TRParse - A module for interoperable gene tree reconciliation maps
 
 =head1 VERSION
 
@@ -28,14 +28,16 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+Read and write reconciled gene and species trees in NeXML.
 
-Perhaps a little code snippet.
+use Bio::TRParse;
 
-    use TRParse;
+my $TRobject = Bio::TRParse->new();
 
-    my $foo = TRParse->new();
-    ...
+$TRobject->load(
+     'source' => 'myfile.xml',
+     'format' => 'nexml'
+);
 
 =head1 EXPORT
 
@@ -176,20 +178,13 @@ sub load_from_nexml {
     for my $block ( @{$blocks} ) {
         if ( $block->isa('Bio::Phylo::Taxa') ) {
             my $taxa = $block;
-
             my $num_taxa = $taxa->get_ntax;
-
-            #print STDERR "NUM TAXA: " . $num_taxa . "\n";
-
-            # do something with the taxa
         }
         elsif ( $block->isa('Bio::Phylo::Forest') ) {
             my $forest = $block;
 
-            #print STDERR "-- Displaying metadata --\n";
+            # Extract reconciliation meta data
             my $recs = $self->extract_reconciliations_from_nexml($forest);
-
-            #print STDERR "-- end of metadata --\n";
 
             #print "RECS: " . Dumper $recs;
             $self->{'reconciliations'} = $recs;
