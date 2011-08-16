@@ -316,7 +316,7 @@ sub dump {
     return Dumper $self;
 }
 
-1;
+
 
 # The object
 package Bio::TRParse::Reconciliation;
@@ -382,7 +382,6 @@ sub guest_tree {
     }
 }
 
-1;
 
 
 package Bio::TRParse::Reconciliation::Tree;
@@ -451,8 +450,6 @@ sub add_node {
     push @{$self->{'nodes'}}, $node;
 }
 
-
-1;
 
 
 package Bio::TRParse::Reconciliation::Tree::Node;
@@ -536,7 +533,7 @@ sub add_metadata {
     }
 }
 
-1;
+
 
 
 =head1 AUTHOR
