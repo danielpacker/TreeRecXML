@@ -393,7 +393,7 @@ sub new {
     my $self  = {
         'tree_id'      => undef,
         'label'        => undef,
-        'root_id' => undef,
+        'root_id'      => undef,
         'nodes'        => [],
     };
     bless $self, $class;
@@ -423,7 +423,32 @@ sub label {
 }
 
 sub root_id {
+    my $self = shift;
+    my $id   = shift;
+    if ( defined($id) ) {
+        $self->{'root_id'} = $id;
+    }
+    else {
+        return $self->{'root_id'};
+    } 
+}
+
+sub nodes {
+    my $self = shift;
+    my @nodes = @_;
     
+    if (scalar(@nodes)) {
+        $self->{'nodes'} = [@nodes];
+    }
+    else {
+        return $self->{'nodes'};
+    }
+}
+
+sub add_node {
+    my $self = shift;
+    my $node = shift or die "No node provided.";
+    push @{$self->{'nodes'}}, $node;
 }
 
 
@@ -438,12 +463,77 @@ sub new {
     my $self  = {
         'node_id'        => undef,
         'label'          => undef,
-        'root_id'   => undef,
-        'parent_node_id' => [],
+        'root_id'        => undef,
+        'parent_node_id' => undef,
         'metadata'       => {},
     };
     bless $self, $class;
     return $self;    
+}
+
+
+sub node_id {
+    my $self = shift;
+    my $id   = shift;
+    if ( defined($id) ) {
+        $self->{'node_id'} = $id;
+    }
+    else {
+        return $self->{'node_id'};
+    }
+}
+
+sub label {
+    my $self  = shift;
+    my $label = shift;
+    if ( defined($label) ) {
+        $self->{'label'} = $label;
+    }
+    else {
+        return $self->{'label'};
+    }
+}
+
+sub root_id {
+    my $self = shift;
+    my $id   = shift;
+    if ( defined($id) ) {
+        $self->{'root_id'} = $id;
+    }
+    else {
+        return $self->{'root_id'};
+    } 
+}
+
+sub node_id {
+    my $self = shift;
+    my $id   = shift;
+    if ( defined($id) ) {
+        $self->{'parent_node_id'} = $id;
+    }
+    else {
+        return $self->{'parent_node_id'};
+    }
+}
+
+sub metadata {
+    my $self = shift;
+    my %meta = @_;
+    if ( scalar(keys %meta) ) {
+        $self->{'metadata'} = \%meta;
+    }
+    else {
+        return $self->{'metadata'};
+    }
+}
+
+sub add_metadata {
+    my $self = shift;
+    my %keyval = @_;
+    for (keys %keyval) {
+        die "undefined term" unless (defined $keyval{$_});
+        $self->{'metadata'}->{$_} = $keyval{$_};
+    }
 }
 
 1;
