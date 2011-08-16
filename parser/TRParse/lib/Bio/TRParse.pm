@@ -392,7 +392,7 @@ sub new {
     my $self  = {
         'tree_id'      => undef,
         'label'        => undef,
-        'root_id'      => undef,
+        'root_node_id' => undef,
         'nodes'        => [],
     };
     bless $self, $class;
@@ -421,14 +421,14 @@ sub label {
     }
 }
 
-sub root_id {
+sub root_node_id {
     my $self = shift;
     my $id   = shift;
     if ( defined($id) ) {
-        $self->{'root_id'} = $id;
+        $self->{'root_node_id'} = $id;
     }
     else {
-        return $self->{'root_id'};
+        return $self->{'root_node_id'};
     } 
 }
 
@@ -460,7 +460,7 @@ sub new {
     my $self  = {
         'node_id'        => undef,
         'label'          => undef,
-        'root_id'        => undef,
+        'root_node_id'   => undef,
         'parent_node_id' => undef,
         'metadata'       => {},
     };
@@ -491,14 +491,14 @@ sub label {
     }
 }
 
-sub root_id {
+sub root_node_id {
     my $self = shift;
     my $id   = shift;
     if ( defined($id) ) {
-        $self->{'root_id'} = $id;
+        $self->{'root_node_id'} = $id;
     }
     else {
-        return $self->{'root_id'};
+        return $self->{'root_node_id'};
     } 
 }
 
