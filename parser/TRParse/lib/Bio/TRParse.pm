@@ -10,9 +10,11 @@ use Bio::Phylo::IO qw(parse unparse);
 
 use DBI;
 
-use constant DB_DSN => 'DBI:mysql:database=trdb;host=localhost';
-use constant DB_USER => 'root';
-use constant DB_PASS => 'root';
+use constant DB_DSN  => 
+    'DBI:mysql:database=' . ( $ENV{'TRDB_DB'} || 'trdb' ) . 
+    ';host=' . ( $ENV{'TRDB_HOST'} || 'localhost' );
+use constant DB_USER => $ENV{'TRDB_USER'} || 'root';
+use constant DB_PASS => $ENV{'TRDB_PASS'} || 'root';
     
 =head1 NAME
 
@@ -188,8 +190,40 @@ sub load_from_nexml {
 
             #print "RECS: " . Dumper $recs;
             $self->{'reconciliations'} = $recs;
+            
+            my $trees = $self->extract_trees_from_nexml($forest);
+            $self->{'guest_trees'} = $trees->{'guest_trees'};
+            $self->{'host_trees'}  = $trees->{'host_trees'};
         }
     }
+}
+
+# Return the host and guest trees from the forest
+sub extract_trees_from_nexml {
+    my $self = shift;
+    my $forest = shift or die "No forest provided!";
+     
+    my (@guest_trees, @host_trees) = ()x2;
+     
+    print "gt count: " . scalar(@guest_trees) . "\n";
+    
+    foreach my $tree ( @{ $forest->get_entities } ) {
+    
+        my $TRtree = Bio::TRParse::Reconciliation::Tree->new();
+    
+        print ref $tree; # prints 'Bio::Phylo::Forest::Tree';
+        print "\n" . $tree->get_name . "\n";
+        # access nodes in $tree
+    
+        foreach my $node ( @{ $tree->get_entities } ) {
+            print ref $node; # prints 'Bio::Phylo::Forest::Node';
+        }
+    }
+    
+    return {
+      'guest trees' => \@guest_trees,
+      'host_trees'  => \@host_trees  
+    };
 }
 
 # Returns arrayref of Reconciliations objects populated via bio::phylo forest
@@ -350,20 +384,48 @@ sub guest_tree {
 
 1;
 
+
 package Bio::TRParse::Reconciliation::Tree;
 
 sub new {
 
     my $class = shift;
     my $self  = {
-        'node_id'      => undef,
+        'tree_id'      => undef,
         'label'        => undef,
-        'root_node_id' => undef,
+        'root_id' => undef,
         'nodes'        => [],
     };
     bless $self, $class;
     return $self;    
 }
+
+sub tree_id {
+    my $self = shift;
+    my $id   = shift;
+    if ( defined($id) ) {
+        $self->{'tree_id'} = $id;
+    }
+    else {
+        return $self->{'tree_id'};
+    }
+}
+
+sub label {
+    my $self  = shift;
+    my $label = shift;
+    if ( defined($label) ) {
+        $self->{'label'} = $label;
+    }
+    else {
+        return $self->{'label'};
+    }
+}
+
+sub root_id {
+    
+}
+
 
 1;
 
@@ -376,7 +438,7 @@ sub new {
     my $self  = {
         'node_id'        => undef,
         'label'          => undef,
-        'root_node_id'   => undef,
+        'root_id'   => undef,
         'parent_node_id' => [],
         'metadata'       => {},
     };
