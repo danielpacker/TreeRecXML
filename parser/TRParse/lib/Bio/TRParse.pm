@@ -286,13 +286,6 @@ sub extract_metadata_from_nexml {
             $meta->get_predicate => $meta->get_object
         };
     }
-    else
-    {
-        #die "Expected a Bio::Phylo::NeXML::Meta object."    
-    }
-        
-
-    
 }
 
 # Returns arrayref of Reconciliations objects populated via bio::phylo forest
