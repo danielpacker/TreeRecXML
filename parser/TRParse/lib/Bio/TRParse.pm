@@ -214,6 +214,11 @@ sub extract_trees_from_nexml {
     
         my ($tree_name, $tree_id) = ($tree->get_name, $tree->get_xml_id);
         
+        $TRtree->tree_id($tree_id);
+        $TRtree->label($tree_name);
+        
+        $TRtree->root_node_id($tree->get_root->get_xml_id());
+        
         print "Processing $tree_id ('$tree_name'):\n";
         # access nodes in $tree
     
@@ -228,6 +233,10 @@ sub extract_trees_from_nexml {
             my $TRnode = Bio::TRParse::Reconciliation::Tree::Node->new();
             
             my ($node_name, $node_id) = ($node->get_name, $node->get_xml_id);
+            
+            $TRnode->label($node_name);
+            $TRnode->node_id($node_id);
+            
             print "Node: $node_id ('$node_name'): " . ref($node) . "\n";
             
             # If there's a reconciliation node_id, then this is a reconciled node
@@ -238,10 +247,11 @@ sub extract_trees_from_nexml {
                 
                 $TRnode->{'metadata'}->{'tron:reconciliation_node_id'} = $tron_rec_node_id;
                 for (qw/host_node_parent host_node_child guest_node_type/) {
-                    $TRnode->{'metadata'}->{'tron:'.$_} = $node->get_meta('tron:'.$_);
+                    $TRnode->{'metadata'}->{'tron:'.$_} = 
+                        $self->extract_metadata_from_nexml($node->get_meta('tron:'.$_));                       
                 }
             }
-            $TRtree->add_node($node);
+            $TRtree->add_node($TRnode);
         }
                 
         # Add tree to appropriate array
@@ -265,6 +275,25 @@ sub extract_trees_from_nexml {
     return \%trees_final;
 }
 
+# return the predicate and object from a nexml metadata object in simple form
+sub extract_metadata_from_nexml {
+    my $self = shift;
+    my $meta = shift or die "No meta provided.";
+
+    print "REF: " . ref($meta) . "\n";
+    if (ref($meta) eq 'Bio::Phylo::NeXML::Meta') {
+        return {
+            $meta->get_predicate => $meta->get_object
+        };
+    }
+    else
+    {
+        #die "Expected a Bio::Phylo::NeXML::Meta object."    
+    }
+        
+
+    
+}
 
 # Returns arrayref of Reconciliations objects populated via bio::phylo forest
 sub extract_reconciliations_from_nexml {
@@ -450,7 +479,7 @@ sub copy {
     my $self = shift;
     my $obj  = shift;
     
-    return Bio::TRParse::Reconciliation::Tree->new(
+    return $self->new(
         'tree_id'      => $obj->tree_id,
         'label'        => $obj->label,
         'root_node_id' => $obj->root_node_id,
@@ -505,8 +534,8 @@ sub nodes {
 
 sub add_node {
     my $self = shift;
-    my $node = shift or die "No node provided.";
-    push @{$self->{'nodes'}}, $node;
+    my $TRnode = shift or die "No node provided.";
+    push @{$self->{'nodes'}}, $TRnode;
 }
 
 
@@ -538,7 +567,7 @@ sub copy {
     my $self = shift;
     my $obj  = shift;
     
-    return Bio::TRParse::Reconciliation::Tree->new(
+    return $self->new(
         'node_id'        => $obj->node_id,
         'label'          => $obj->label,
         'root_node_id'   => $obj->root_node_id,
@@ -581,6 +610,17 @@ sub root_node_id {
 }
 
 sub node_id {
+    my $self = shift;
+    my $id   = shift;
+    if ( defined($id) ) {
+        $self->{'node_id'} = $id;
+    }
+    else {
+        return $self->{'node_id'};
+    }
+}
+
+sub parent_node_id {
     my $self = shift;
     my $id   = shift;
     if ( defined($id) ) {
