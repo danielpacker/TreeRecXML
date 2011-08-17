@@ -202,29 +202,69 @@ sub load_from_nexml {
 sub extract_trees_from_nexml {
     my $self = shift;
     my $forest = shift or die "No forest provided!";
-     
-    my (@guest_trees, @host_trees) = ()x2;
-     
-    print "gt count: " . scalar(@guest_trees) . "\n";
-    
+
+    print "\n----\n";
+         
+    my @guest_trees = ();
+    my @host_trees = ();
+         
     foreach my $tree ( @{ $forest->get_entities } ) {
     
         my $TRtree = Bio::TRParse::Reconciliation::Tree->new();
     
-        print ref $tree; # prints 'Bio::Phylo::Forest::Tree';
-        print "\n" . $tree->get_name . "\n";
+        my ($tree_name, $tree_id) = ($tree->get_name, $tree->get_xml_id);
+        
+        print "Processing $tree_id ('$tree_name'):\n";
         # access nodes in $tree
     
-        foreach my $node ( @{ $tree->get_entities } ) {
-            print ref $node; # prints 'Bio::Phylo::Forest::Node';
+        my @tree_nodes = @{ $tree->get_entities };
+        
+        print "Found " . scalar(@tree_nodes) . " nodes in tree.\n";
+        
+        my $is_guest = 0;   # is tree a guest or host?
+        
+        foreach my $node ( @tree_nodes ) {
+            
+            my $TRnode = Bio::TRParse::Reconciliation::Tree::Node->new();
+            
+            my ($node_name, $node_id) = ($node->get_name, $node->get_xml_id);
+            print "Node: $node_id ('$node_name'): " . ref($node) . "\n";
+            
+            # If there's a reconciliation node_id, then this is a reconciled node
+            if (my $tron_rec_node_id = $node->get_meta('tron:reconciliation_node_id')) {
+                
+                # If this tree has a reconciled node, it's probably a guest tree!
+                $is_guest = 1;
+                
+                $TRnode->{'metadata'}->{'tron:reconciliation_node_id'} = $tron_rec_node_id;
+                for (qw/host_node_parent host_node_child guest_node_type/) {
+                    $TRnode->{'metadata'}->{'tron:'.$_} = $node->get_meta('tron:'.$_);
+                }
+            }
+            $TRtree->add_node($node);
         }
+                
+        # Add tree to appropriate array
+        if ($is_guest) {
+            push @guest_trees, $TRtree;
+        } else {
+            push @host_trees, $TRtree;
+        }
+        
     }
     
-    return {
-      'guest trees' => \@guest_trees,
-      'host_trees'  => \@host_trees  
-    };
+    print "\n----\n";
+    
+    my %trees_final = (
+      'guest trees' => [@guest_trees],
+      'host_trees'  => [@host_trees]  
+    );
+    
+    print Dumper \%trees_final;
+    
+    return \%trees_final;
 }
+
 
 # Returns arrayref of Reconciliations objects populated via bio::phylo forest
 sub extract_reconciliations_from_nexml {
@@ -389,14 +429,33 @@ package Bio::TRParse::Reconciliation::Tree;
 sub new {
 
     my $class = shift;
+    my %args = @_;
+    
     my $self  = {
         'tree_id'      => undef,
         'label'        => undef,
         'root_node_id' => undef,
         'nodes'        => [],
     };
+    
+    for (keys %$self) {
+        defined($args{$_}) && ($self->{$_} = $args{$_});
+    }
     bless $self, $class;
     return $self;    
+}
+
+sub copy {
+    
+    my $self = shift;
+    my $obj  = shift;
+    
+    return Bio::TRParse::Reconciliation::Tree->new(
+        'tree_id'      => $obj->tree_id,
+        'label'        => $obj->label,
+        'root_node_id' => $obj->root_node_id,
+        'nodes'        => $obj->nodes,
+    );
 }
 
 sub tree_id {
@@ -457,17 +516,36 @@ package Bio::TRParse::Reconciliation::Tree::Node;
 sub new {
 
     my $class = shift;
+    my %args = @_;
+    
     my $self  = {
         'node_id'        => undef,
         'label'          => undef,
         'root_node_id'   => undef,
         'parent_node_id' => undef,
-        'metadata'       => {},
+        'metadata'       => {},        
     };
+    
+    for (keys %$self) {
+        defined($args{$_}) && ($self->{$_} = $args{$_});
+    }
     bless $self, $class;
     return $self;    
 }
 
+sub copy {
+    
+    my $self = shift;
+    my $obj  = shift;
+    
+    return Bio::TRParse::Reconciliation::Tree->new(
+        'node_id'        => $obj->node_id,
+        'label'          => $obj->label,
+        'root_node_id'   => $obj->root_node_id,
+        'parent_node_id' => $obj->parent_node_id,
+        'metadata'       => %{ $obj->metadata }, 
+    );
+}
 
 sub node_id {
     my $self = shift;
