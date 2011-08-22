@@ -203,7 +203,7 @@ sub extract_trees_from_nexml {
     my $self = shift;
     my $forest = shift or die "No forest provided!";
 
-    print "\n----\n";
+    # print "\n----\n";
          
     my @guest_trees = ();
     my @host_trees = ();
@@ -219,12 +219,12 @@ sub extract_trees_from_nexml {
         
         $TRtree->root_node_id($tree->get_root->get_xml_id());
         
-        print "Processing $tree_id ('$tree_name'):\n";
+        # print "Processing $tree_id ('$tree_name'):\n";
         # access nodes in $tree
     
         my @tree_nodes = @{ $tree->get_entities };
         
-        print "Found " . scalar(@tree_nodes) . " nodes in tree.\n";
+        #print "Found " . scalar(@tree_nodes) . " nodes in tree.\n";
         
         my $is_guest = 0;   # is tree a guest or host?
         
@@ -237,7 +237,7 @@ sub extract_trees_from_nexml {
             $TRnode->label($node_name);
             $TRnode->node_id($node_id);
             
-            print "Node: $node_id ('$node_name'): " . ref($node) . "\n";
+            #print "Node: $node_id ('$node_name'): " . ref($node) . "\n";
             
             # If there's a reconciliation node_id, then this is a reconciled node
             if (my $tron_rec_node_id = $node->get_meta('tron:reconciliation_node_id')) {
@@ -263,14 +263,14 @@ sub extract_trees_from_nexml {
         
     }
     
-    print "\n----\n";
+    # print "\n----\n";
     
     my %trees_final = (
       'guest trees' => [@guest_trees],
       'host_trees'  => [@host_trees]  
     );
     
-    print Dumper \%trees_final;
+    #print Dumper \%trees_final;
     
     return \%trees_final;
 }
@@ -280,7 +280,7 @@ sub extract_metadata_from_nexml {
     my $self = shift;
     my $meta = shift or die "No meta provided.";
 
-    print "REF: " . ref($meta) . "\n";
+    # print "REF: " . ref($meta) . "\n";
     if (ref($meta) eq 'Bio::Phylo::NeXML::Meta') {
         return {
             $meta->get_predicate => $meta->get_object

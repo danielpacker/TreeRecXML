@@ -23,7 +23,8 @@ $TRobject->load(
     'source' => ['bowers_rosids', 'pg00892'],
     );
 
+print $TRobject->dump();
 
-print "done";
+print "\ndone\n";
 
 exit;
